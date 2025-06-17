@@ -7,9 +7,6 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-Berikut versi yang lebih keren dan profesional dari README.md untuk proyek **Sonorus**, dengan peningkatan pada format, emoji, penulisan, dan visual hierarchy agar lebih menarik di GitHub:
-
----
 
 ````markdown
 # 🎼 Sonorus: Classical Music Streaming Platform
