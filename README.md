@@ -206,13 +206,29 @@ sonorus/
 > *(replace with real image links for GitHub display)*
 
 * 🎉 **Welcome Page**
+* ![Screenshot 2025-06-17 144409](https://github.com/user-attachments/assets/916fe371-1c51-4c30-b2da-e7f6939b9cda)
+
 * 🧑‍💼 **Admin Dashboard**
+* ![Screenshot 2025-06-17 144438](https://github.com/user-attachments/assets/49a0dc47-54ac-476e-9d13-1d8893432142)
+
 * 🎼 **Composer Management**
+* ![Screenshot 2025-06-17 144454](https://github.com/user-attachments/assets/29ee9ac3-13e5-49f8-a2c0-c3c7818c21ed)
+
 * 🎵 **Song Management**
+* ![Screenshot 2025-06-17 144517](https://github.com/user-attachments/assets/855dc299-049b-4aaa-9464-ebf6e6ee8297)
+
 * 👤 **User Home**
+* ![Screenshot 2025-06-17 144639](https://github.com/user-attachments/assets/564080a1-5fde-48ce-8916-fbc79bbd245b)
+
 * 🎧 **Music Player**
+* ![Screenshot 2025-06-17 144710](https://github.com/user-attachments/assets/e597c5bc-373b-4598-b9f9-f34a925bdd56)
+
 * 📝 **Playlist Manager**
+* ![Screenshot 2025-06-17 144739](https://github.com/user-attachments/assets/9673f4a7-b62c-4992-8eaf-019d8ff58b47)
+
 * 🧠 **Composer Detail**
+*  ![Screenshot 2025-06-17 144758](https://github.com/user-attachments/assets/1da79046-b099-4f6a-a0c6-31cba0fe3adb)
+
 
 ---
 
