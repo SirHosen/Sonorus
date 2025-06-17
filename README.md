@@ -8,7 +8,6 @@
 </p>
 
 
-````markdown
 # 🎼 Sonorus: Classical Music Streaming Platform
 
 ![Sonorus Logo](public/images/sonorus-logo.png)
