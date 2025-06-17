@@ -8,20 +8,6 @@
 
 ---
 
-## 📚 Table of Contents
-
-* [✨ Features](#-features)
-* [🧰 Technology Stack](#-technology-stack)
-* [🚀 Installation](#-installation)
-* [⚙️ Configuration](#-configuration)
-* [🎮 Usage](#-usage)
-* [📂 Project Structure](#-project-structure)
-* [📸 Screenshots](#-screenshots)
-* [🤝 Contributing](#-contributing)
-* [📄 License](#-license)
-* [🙏 Acknowledgements](#-acknowledgements)
-
----
 
 ## ✨ Features
 
