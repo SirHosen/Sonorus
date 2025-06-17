@@ -212,7 +212,7 @@ Pull requests are welcome! To contribute:
 git checkout -b feature/your-feature-name
 
 # Make changes
-git commit -m "Add awesome feature"
+git commit -m "Add new feature"
 
 # Push and open a PR
 ```
