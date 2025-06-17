@@ -181,7 +181,6 @@ sonorus/
 
 ## 📸 Screenshots
 
-> Replace with real hosted links for production use.
 
 **🎉 Welcome Page**
 ![Welcome Page](https://github.com/user-attachments/assets/916fe371-1c51-4c30-b2da-e7f6939b9cda)
