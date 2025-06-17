@@ -24,7 +24,6 @@
 - [🎮 Usage](#-usage)
 - [📂 Project Structure](#-project-structure)
 - [📸 Screenshots](#-screenshots)
-- [📡 API Documentation](#-api-documentation)
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
 - [🙏 Acknowledgements](#-acknowledgements)
@@ -217,14 +216,6 @@ sonorus/
 
 ---
 
-## 📡 API Documentation
-
-Sonorus offers RESTful APIs for external integration.
-
-* Access at: [`/api/documentation`](http://localhost:8000/api/documentation) (when app is running)
-
----
-
 ## 🤝 Contributing
 
 Pull requests are welcome! To contribute:
@@ -237,14 +228,6 @@ git checkout -b feature/your-feature-name
 git commit -m "Add awesome feature"
 
 # Push and open a PR
-```
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [`LICENSE`](LICENSE) file for details.
-
 ---
 
 ## 🙏 Acknowledgements
@@ -257,6 +240,6 @@ This project is licensed under the **MIT License** — see the [`LICENSE`](LICEN
 
 ---
 
-> Developed with ❤️ for classical music enthusiasts everywhere.
+> Projek Matakuliah Web Programming II
 
 
