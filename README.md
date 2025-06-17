@@ -259,15 +259,4 @@ This project is licensed under the **MIT License** — see the [`LICENSE`](LICEN
 
 > Developed with ❤️ for classical music enthusiasts everywhere.
 
-```
-
----
-
-Jika kamu ingin, saya bisa bantu:
-- Menambahkan badge GitHub (stars, forks, license)
-- Menyiapkan file `LICENSE`, `.gitignore`, atau `.editorconfig`
-- Menambahkan demo video/GIF ke README
-
-Cukup beri tahu saja!
-```
 
