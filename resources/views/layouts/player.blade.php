@@ -212,12 +212,18 @@
             overflow: hidden;
         }
         
+        .song-card .image-wrapper {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px 10px 0 0;
+        }
+        
         .song-card img {
             width: 100%;
             aspect-ratio: 1 / 1;
             object-fit: cover;
             transition: all 0.5s ease;
-            display: block; /* Penting untuk menghilangkan gap */
+            display: block;
         }
         
         .song-card:hover img {
@@ -253,24 +259,33 @@
             position: absolute;
             top: 0;
             left: 0;
+            right: 0;
+            bottom: 0;
             width: 100%;
-            height: calc(100% - 70px);
-            background: rgba(142, 68, 173, 0.7);
+            height: 100%;
+            background: rgba(142, 68, 173, 0.85);
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: all 0.3s ease;
-            border-radius: 10px 10px 0 0;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+            z-index: 10;
         }
         
-        .song-card:hover .play-hover {
+        .song-card .image-wrapper:hover .play-hover {
             opacity: 1;
         }
         
         .song-card .play-hover i {
             font-size: 50px;
             color: white;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+        
+        .song-card .play-hover:hover i {
+            transform: scale(1.1);
         }
         
         .composer-card {
@@ -1113,37 +1128,15 @@
                 }
             });
             
-            // IMPROVED SEEKING FUNCTIONALITY
-            // Click directly on progress bar (simpler approach)
-            progressContainer.addEventListener('click', function(e) {
-                if (audioPlayer.readyState > 0) {
-                    const rect = progressContainer.getBoundingClientRect();
-                    const clickPosition = e.clientX - rect.left;
-                    const containerWidth = rect.width;
-                    const seekPercentage = clickPosition / containerWidth;
-                    
-                    if (seekPercentage >= 0 && seekPercentage <= 1) {
-                        audioPlayer.currentTime = seekPercentage * audioPlayer.duration;
-                        
-                        // Update visual immediately
-                        progressBar.style.width = (seekPercentage * 100) + '%';
-                        progressHandle.style.left = (seekPercentage * 100) + '%';
-                        
-                        // Update time display
-                        const newTime = seekPercentage * audioPlayer.duration;
-                        const minutes = Math.floor(newTime / 60);
-                        const seconds = Math.floor(newTime % 60);
-                        currentTime.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-                    }
-                }
-            });
+            // IMPROVED SEEKING FUNCTIONALITY - Drag only, no conflicting click event
+            let wasDragging = false;
             
-            // Alternative approach with mousedown/mousemove/mouseup for drag functionality
             progressContainer.addEventListener('mousedown', startDragging);
             
             function startDragging(e) {
                 if (audioPlayer.readyState > 0) {
                     isDraggingProgress = true;
+                    wasDragging = false;
                     updateSeekPosition(e);
                     document.addEventListener('mousemove', updateDuringDrag);
                     document.addEventListener('mouseup', stopDragging);
@@ -1153,6 +1146,7 @@
             
             function updateDuringDrag(e) {
                 if (isDraggingProgress) {
+                    wasDragging = true;
                     updateSeekPosition(e);
                     e.preventDefault();
                 }
@@ -1160,19 +1154,22 @@
             
             function stopDragging(e) {
                 if (isDraggingProgress) {
-                    updateSeekPosition(e);
-                    
-                    // Apply the seek
+                    // Apply the final seek position
                     const rect = progressContainer.getBoundingClientRect();
-                    const seekPercentage = (e.clientX - rect.left) / rect.width;
+                    const seekPercentage = Math.min(Math.max(0, (e.clientX - rect.left) / rect.width), 1);
                     
-                    if (seekPercentage >= 0 && seekPercentage <= 1) {
+                    if (!isNaN(audioPlayer.duration)) {
                         audioPlayer.currentTime = seekPercentage * audioPlayer.duration;
                     }
                     
                     isDraggingProgress = false;
                     document.removeEventListener('mousemove', updateDuringDrag);
                     document.removeEventListener('mouseup', stopDragging);
+                    
+                    // Small delay to prevent click event from firing
+                    setTimeout(() => {
+                        wasDragging = false;
+                    }, 10);
                 }
             }
             
@@ -1180,7 +1177,7 @@
                 const rect = progressContainer.getBoundingClientRect();
                 const seekPercentage = Math.min(Math.max(0, (e.clientX - rect.left) / rect.width), 1);
                 
-                // Update visual
+                // Update visual immediately
                 progressBar.style.width = (seekPercentage * 100) + '%';
                 progressHandle.style.left = (seekPercentage * 100) + '%';
                 

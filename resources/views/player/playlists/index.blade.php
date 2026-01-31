@@ -14,7 +14,7 @@
     @forelse($playlists as $playlist)
     <div class="col-md-3 mb-4">
         <div class="card song-card h-100">
-            <div class="position-relative">
+            <div class="image-wrapper">
                 @if($playlist->cover_image)
                     <img src="{{ asset('storage/' . $playlist->cover_image) }}" alt="{{ $playlist->name }}">
                 @else

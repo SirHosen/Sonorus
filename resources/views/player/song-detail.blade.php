@@ -106,7 +106,7 @@
     @foreach($relatedSongs as $relatedSong)
     <div class="col-md-3 mb-4">
         <div class="card song-card">
-            <div class="position-relative">
+            <div class="image-wrapper">
                 @if($relatedSong->cover_image)
                     <img src="{{ asset('storage/' . $relatedSong->cover_image) }}" alt="{{ $relatedSong->title }}">
                 @else

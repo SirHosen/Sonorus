@@ -35,7 +35,7 @@
     @foreach($recentSongs as $song)
     <div class="col-md-3 mb-4">
         <div class="card song-card">
-            <div class="position-relative">
+            <div class="image-wrapper">
                 @if($song->cover_image)
                     <img src="{{ asset('storage/' . $song->cover_image) }}" alt="{{ $song->title }}">
                 @else
@@ -85,7 +85,7 @@
     @foreach($playlists as $playlist)
     <div class="col-md-3 mb-4">
         <div class="card song-card" onclick="window.location.href='{{ route('player.playlists.show', $playlist) }}'">
-            <div class="position-relative">
+            <div class="image-wrapper">
                 @if($playlist->cover_image)
                     <img src="{{ asset('storage/' . $playlist->cover_image) }}" alt="{{ $playlist->name }}">
                 @else
