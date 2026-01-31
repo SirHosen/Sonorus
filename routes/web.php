@@ -47,9 +47,13 @@ Route::prefix('player')->name('player.')->middleware(['auth', 'role:user'])->gro
     Route::get('/playlists/{playlist}/edit', [PlaylistController::class, 'edit'])->name('playlists.edit');
     Route::put('/playlists/{playlist}', [PlaylistController::class, 'update'])->name('playlists.update');
     Route::delete('/playlists/{playlist}', [PlaylistController::class, 'destroy'])->name('playlists.destroy');
-    Route::post('/playlists/{playlist}/add-song', [PlaylistController::class, 'addSong'])->name('playlists.add-song');
-    Route::post('/playlists/{playlist}/remove-song', [PlaylistController::class, 'removeSong'])->name('playlists.remove-song');
-    Route::post('/playlists/{playlist}/reorder', [PlaylistController::class, 'reorderSongs'])->name('playlists.reorder');
+    
+    // Rate limited playlist song operations
+    Route::middleware('throttle:60,1')->group(function () {
+        Route::post('/playlists/{playlist}/add-song', [PlaylistController::class, 'addSong'])->name('playlists.add-song');
+        Route::post('/playlists/{playlist}/remove-song', [PlaylistController::class, 'removeSong'])->name('playlists.remove-song');
+        Route::post('/playlists/{playlist}/reorder', [PlaylistController::class, 'reorderSongs'])->name('playlists.reorder');
+    });
 });
 
 // Redirect authenticated users based on role

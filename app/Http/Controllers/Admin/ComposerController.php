@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Composer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ComposerController extends Controller
 {
@@ -31,8 +32,8 @@ class ComposerController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'biography' => 'nullable|string',
-            'birth_year' => 'nullable|string|max:10',
-            'death_year' => 'nullable|string|max:10',
+            'birth_year' => 'nullable|integer|min:1000|max:' . (date('Y') + 1),
+            'death_year' => 'nullable|integer|min:1000|max:' . (date('Y') + 1),
             'country' => 'nullable|string|max:100',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -71,34 +72,55 @@ class ComposerController extends Controller
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $data = $request->except('photo');
+        try {
+            $data = $request->except('photo');
 
-        if ($request->hasFile('photo')) {
-            // Delete old photo if exists
-            if ($composer->photo) {
-                Storage::disk('public')->delete($composer->photo);
+            if ($request->hasFile('photo')) {
+                // Delete old photo if exists
+                if ($composer->photo) {
+                    try {
+                        Storage::disk('public')->delete($composer->photo);
+                    } catch (\Exception $e) {
+                        Log::warning('Failed to delete old composer photo: ' . $e->getMessage());
+                    }
+                }
+                
+                $photoPath = $request->file('photo')->store('composers', 'public');
+                $data['photo'] = $photoPath;
             }
-            
-            $photoPath = $request->file('photo')->store('composers', 'public');
-            $data['photo'] = $photoPath;
+
+            $composer->update($data);
+
+            return redirect()->route('admin.composers.index')
+                ->with('success', 'Composer updated successfully!');
+        } catch (\Exception $e) {
+            Log::error('Error updating composer: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to update composer. Please try again.');
         }
-
-        $composer->update($data);
-
-        return redirect()->route('admin.composers.index')
-            ->with('success', 'Composer updated successfully!');
     }
 
     public function destroy(Composer $composer)
     {
-        // Delete photo if exists
-        if ($composer->photo) {
-            Storage::disk('public')->delete($composer->photo);
-        }
-        
-        $composer->delete();
+        try {
+            // Delete photo if exists
+            if ($composer->photo) {
+                try {
+                    Storage::disk('public')->delete($composer->photo);
+                } catch (\Exception $e) {
+                    Log::warning('Failed to delete composer photo: ' . $e->getMessage());
+                }
+            }
+            
+            $composer->delete();
 
-        return redirect()->route('admin.composers.index')
-            ->with('success', 'Composer deleted successfully!');
+            return redirect()->route('admin.composers.index')
+                ->with('success', 'Composer deleted successfully!');
+        } catch (\Exception $e) {
+            Log::error('Error deleting composer: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Failed to delete composer. Please try again.');
+        }
     }
 }

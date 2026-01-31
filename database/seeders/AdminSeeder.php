@@ -23,7 +23,7 @@ class AdminSeeder extends Seeder
         // Buat user default
         $user = User::create([
             'name' => 'User',
-            'email' => 'user@sonorus.com',
+            'email' => 'p@sonorus.com',
             'password' => Hash::make('user123'),
         ]);
 
