@@ -44,22 +44,4 @@
     </div>
 </div>
 
-<div class="row mt-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5>Welcome to Sonorus Admin Dashboard</h5>
-            </div>
-            <div class="card-body">
-                <p>From here, you can manage all aspects of your classical music streaming platform:</p>
-                <ul>
-                    <li>Add and manage composers</li>
-                    <li>Upload and organize classical music pieces</li>
-                    <li>Manage user accounts and permissions</li>
-                </ul>
-                <p>Use the sidebar to navigate to different sections of the admin panel.</p>
-            </div>
-        </div>
-    </div>
-</div>
 @endsection
