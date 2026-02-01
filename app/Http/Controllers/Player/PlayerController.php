@@ -8,12 +8,13 @@ use App\Models\Song;
 use App\Models\Composer;
 use App\Models\Playlist;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PlayerController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'role:user']);
+        $this->middleware(['auth', 'role:user'])->except(['stream']);
     }
 
     public function index()
@@ -72,5 +73,70 @@ class PlayerController extends Controller
             ->paginate(12);
             
         return view('player.search-results', compact('songs', 'composers', 'query'));
+    }
+
+    public function stream(Request $request, Song $song)
+    {
+        if (!$song->audio_file || !Storage::disk('public')->exists($song->audio_file)) {
+            abort(404);
+        }
+
+        $path = Storage::disk('public')->path($song->audio_file);
+        $size = filesize($path);
+        $mime = Storage::disk('public')->mimeType($song->audio_file) ?: 'audio/mpeg';
+        $headers = [
+            'Content-Type' => $mime,
+            'Accept-Ranges' => 'bytes',
+        ];
+
+        $range = $request->header('Range');
+        if (!$range) {
+            return response()->file($path, $headers);
+        }
+
+        if (!preg_match('/bytes=(\d+)-(\d*)/i', $range, $matches)) {
+            return response()->file($path, $headers);
+        }
+
+        $start = (int) $matches[1];
+        $end = $matches[2] !== '' ? (int) $matches[2] : $size - 1;
+        if ($end >= $size) {
+            $end = $size - 1;
+        }
+
+        if ($start > $end) {
+            return response('', 416, ['Content-Range' => "bytes */{$size}"]);
+        }
+
+        $length = $end - $start + 1;
+        $headers['Content-Range'] = "bytes {$start}-{$end}/{$size}";
+        $headers['Content-Length'] = $length;
+
+        return response()->stream(function () use ($path, $start, $length) {
+            $handle = fopen($path, 'rb');
+            if ($handle === false) {
+                return;
+            }
+
+            fseek($handle, $start);
+            $buffer = 8192;
+            $remaining = $length;
+
+            while ($remaining > 0 && !feof($handle)) {
+                $read = $remaining > $buffer ? $buffer : $remaining;
+                $data = fread($handle, $read);
+                if ($data === false) {
+                    break;
+                }
+                echo $data;
+                $remaining -= strlen($data);
+
+                if (connection_aborted()) {
+                    break;
+                }
+            }
+
+            fclose($handle);
+        }, 206, $headers);
     }
 }

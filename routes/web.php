@@ -19,6 +19,9 @@ Route::get('/', function () {
 // Authentication routes
 Auth::routes();
 
+// Authenticated audio stream (supports seeking for all roles)
+Route::get('/stream/{song}', [PlayerController::class, 'stream'])->name('audio.stream')->middleware('auth');
+
 // Redirect after login based on role (handled by LoginController)
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
@@ -36,6 +39,7 @@ Route::prefix('player')->name('player.')->middleware(['auth', 'role:user'])->gro
     Route::get('/browse', [PlayerController::class, 'browse'])->name('browse');
     Route::get('/composers', [PlayerController::class, 'composers'])->name('composers');
     Route::get('/composers/{composer}', [PlayerController::class, 'composerDetail'])->name('composer');
+    Route::get('/stream/{song}', [PlayerController::class, 'stream'])->name('stream');
     Route::get('/songs/{song}', [PlayerController::class, 'songDetail'])->name('song');
     Route::get('/search', [PlayerController::class, 'search'])->name('search');
     

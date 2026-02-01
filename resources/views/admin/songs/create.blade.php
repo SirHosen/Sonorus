@@ -4,9 +4,6 @@
 
 @section('content')
 <div class="card">
-    <div class="card-header">
-        <h5>Add New Song</h5>
-    </div>
     <div class="card-body">
         <form action="{{ route('admin.songs.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -19,33 +16,26 @@
                 @enderror
             </div>
             
-            <div class="mb-3">
-                <label for="composer_id" class="form-label">Composer <span class="text-danger">*</span></label>
-                <select class="form-select @error('composer_id') is-invalid @enderror" id="composer_id" name="composer_id" required>
-                    <option value="">Select a composer</option>
-                    @foreach($composers as $composer)
-                        <option value="{{ $composer->id }}" {{ old('composer_id') == $composer->id ? 'selected' : '' }}>
-                            {{ $composer->name }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('composer_id')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-            
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="year" class="form-label">Year</label>
-                    <input type="text" class="form-control @error('year') is-invalid @enderror" id="year" name="year" value="{{ old('year') }}">
-                    @error('year')
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="composer_id" class="form-label">Composer <span class="text-danger">*</span></label>
+                    <select class="form-select @error('composer_id') is-invalid @enderror" id="composer_id" name="composer_id" required>
+                        <option value="">Select a composer</option>
+                        @foreach($composers as $composer)
+                            <option value="{{ $composer->id }}" {{ old('composer_id') == $composer->id ? 'selected' : '' }}>
+                                {{ $composer->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('composer_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="col-md-6">
-                    <label for="duration" class="form-label">Duration</label>
-                    <input type="text" class="form-control @error('duration') is-invalid @enderror" id="duration" name="duration" value="{{ old('duration') }}" placeholder="e.g. 3:45">
-                    @error('duration')
+                
+                <div class="col-md-6 mb-3">
+                    <label for="year" class="form-label">Year</label>
+                    <input type="text" class="form-control @error('year') is-invalid @enderror" id="year" name="year" value="{{ old('year') }}">
+                    @error('year')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>

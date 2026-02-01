@@ -4,125 +4,468 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sonorus Admin - @yield('title')</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
+        :root {
+            /* Cinematic Dark Palette */
+            --bg-body: #0f172a; /* Deep Slate Blue */
+            --bg-sidebar: rgba(22, 30, 46, 0.85);
+            --bg-card: rgba(30, 41, 59, 0.7);
+            
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-accent: #fcd34d; /* Gold */
+            
+            --primary-accent: #fcd34d;
+            --primary-glow: rgba(252, 211, 77, 0.3);
+            
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            
+            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
         body {
-            font-family: 'Georgia', serif;
-            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            overflow-x: hidden;
         }
+
+        /* Scroller */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+
+        h1, h2, h3, h4, h5, h6, .brand-font {
+            font-family: 'Playfair Display', serif;
+            color: var(--text-primary);
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--glass-shadow);
+        }
+
+        /* Sidebar Styling */
         .sidebar {
+            background: var(--bg-sidebar);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             min-height: 100vh;
-            background-color: #343a40;
-            color: white;
-            padding-top: 20px;
+            border-right: var(--glass-border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 270px;
+            z-index: 1000;
+            transition: var(--transition-smooth);
         }
-        .sidebar a {
-            color: #f8f9fa;
+
+        .sidebar-brand {
+            padding: 2.5rem 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Brand Glow Effect */
+        .sidebar-brand::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            background: var(--primary-accent);
+            filter: blur(60px);
+            opacity: 0.1;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+
+        .sidebar-brand h2 {
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 20px rgba(252, 211, 77, 0.2);
+        }
+
+        .sidebar-brand span {
+            color: var(--primary-accent);
+        }
+
+        .sidebar-menu {
+            padding: 1rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: var(--text-secondary);
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.5rem;
+            border-radius: 12px;
+            transition: var(--transition-smooth);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            color: var(--bg-body);
+            background: linear-gradient(135deg, #fcd34d 0%, #d97706 100%);
+            font-weight: 600;
+            box-shadow: 0 0 20px rgba(217, 119, 6, 0.4);
+        }
+        
+        .nav-link.active i {
+            color: var(--bg-body);
+        }
+
+        .nav-link i {
+            width: 24px;
+            margin-right: 12px;
+            font-size: 1.1rem;
+            transition: var(--transition-smooth);
+        }
+
+        /* Main Content */
+        .main-wrapper {
+            margin-left: 270px;
+            width: calc(100% - 270px);
+            transition: var(--transition-smooth);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Navbar */
+        .top-navbar {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(10px);
+            border-bottom: var(--glass-border);
+            padding: 1.25rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            width: 100%;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-dropdown .dropdown-toggle {
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
             text-decoration: none;
-            display: block;
-            padding: 10px 15px;
-            transition: all 0.3s;
+            padding: 0.5rem;
+            border-radius: 12px;
+            transition: var(--transition-smooth);
         }
-        .sidebar a:hover {
-            background-color: #495057;
+        
+        .user-dropdown .dropdown-toggle:hover {
+            background: rgba(255, 255, 255, 0.05);
         }
-        .sidebar .active {
-            background-color: #495057;
-            border-left: 4px solid #ffc107;
-        }
-        .content {
-            padding: 20px;
-        }
-        .navbar-brand {
-            font-family: 'Times New Roman', serif;
-            font-size: 24px;
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #fcd34d 0%, #d97706 100%);
+            color: var(--bg-body);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: bold;
+            font-family: 'Playfair Display', serif;
+            box-shadow: 0 0 15px rgba(217, 119, 6, 0.3);
         }
+
+        /* Content Area */
+        .content-container {
+            padding: 2.5rem;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Common Components - Overrides */
         .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--glass-shadow);
+            margin-bottom: 30px;
+            color: var(--text-primary);
         }
+        
         .card-header {
-            background-color: #343a40;
-            color: white;
-            border-radius: 10px 10px 0 0 !important;
+            background: transparent;
+            border-bottom: var(--glass-border);
+            padding: 1.5rem;
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: var(--primary-accent);
         }
+        
+        .card-body {
+            padding: 2rem;
+        }
+
+        /* Form Controls */
+        .form-control, .form-select {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            transition: var(--transition-smooth);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background: rgba(15, 23, 42, 0.8);
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 4px rgba(252, 211, 77, 0.1);
+            color: var(--text-primary);
+        }
+        
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .form-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        .input-group-text {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+        }
+
+        /* Buttons */
         .btn-primary {
-            background-color: #343a40;
-            border-color: #343a40;
+            background: linear-gradient(135deg, #fcd34d 0%, #d97706 100%);
+            border: none;
+            color: var(--bg-body);
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: var(--transition-smooth);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
+
         .btn-primary:hover {
-            background-color: #495057;
-            border-color: #495057;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(217, 119, 6, 0.4);
+            background: linear-gradient(135deg, #fbbf24 0%, #b45309 100%);
+            color: var(--bg-body);
+        }
+        
+        .btn-secondary, .btn-outline-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            transition: var(--transition-smooth);
+        }
+        
+        .btn-secondary:hover, .btn-outline-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        /* Alerts */
+        .alert {
+            background: rgba(16, 185, 129, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border-radius: 12px;
+        }
+        
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .main-wrapper {
+                margin-left: 0;
+                width: 100%;
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
         }
     </style>
     @yield('styles')
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-2 sidebar">
-                <div class="text-center mb-4">
-                    <h2>Sonorus</h2>
-                    <p>Admin Dashboard</p>
-                </div>
-                <nav class="mt-4">
-                    <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                    </a>
-                    <a href="{{ route('admin.composers.index') }}" class="{{ request()->routeIs('admin.composers.*') ? 'active' : '' }}">
-                        <i class="fas fa-user-tie me-2"></i> Composers
-                    </a>
-                    <a href="{{ route('admin.songs.index') }}" class="{{ request()->routeIs('admin.songs.*') ? 'active' : '' }}">
-                        <i class="fas fa-music me-2"></i> Songs
-                    </a>
-                    <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                        <i class="fas fa-users me-2"></i> Users
-                    </a>
-                    <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                        <i class="fas fa-sign-out-alt me-2"></i> Logout
-                    </a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                        @csrf
-                    </form>
-                </nav>
+    
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-brand d-flex align-items-center gap-3">
+            <img src="{{ asset('images/classical-illustration.png') }}" alt="Sonorus" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover; border: 2px solid var(--primary-accent); box-shadow: 0 0 15px var(--primary-glow);">
+            <div>
+                <h2 style="font-size: 1.5rem; margin-bottom: 0;">Sonorus<span>.</span></h2>
+                <p class="text-white mb-0 small" style="letter-spacing: 2px; font-size: 0.6rem; opacity: 0.7;">ADMINISTRATOR</p>
+            </div>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <i class="fas fa-chart-line"></i> 
+                <span>Dashboard</span>
+            </a>
+            
+            <p class="small fw-bold text-uppercase mt-4 mb-3 ps-3" style="color: var(--text-secondary); font-size: 0.7rem; letter-spacing: 1px;">Management</p>
+            
+            <a href="{{ route('admin.composers.index') }}" class="nav-link {{ request()->routeIs('admin.composers.*') ? 'active' : '' }}">
+                <i class="fas fa-feather-alt"></i> 
+                <span>Composers</span>
+            </a>
+            <a href="{{ route('admin.songs.index') }}" class="nav-link {{ request()->routeIs('admin.songs.*') ? 'active' : '' }}">
+                <i class="fas fa-music"></i> 
+                <span>Songs</span>
+            </a>
+            <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                <i class="fas fa-users"></i> 
+                <span>Users</span>
+            </a>
+            
+            <div style="position: absolute; bottom: 30px; width: calc(100% - 2rem);">
+                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="nav-link text-danger" style="background: rgba(239, 68, 68, 0.1);">
+                    <i class="fas fa-sign-out-alt"></i> 
+                    <span>Logout</span>
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <!-- Top Navbar -->
+        <header class="top-navbar">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-link d-md-none text-light me-3" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title">@yield('title')</h1>
             </div>
             
-            <!-- Main Content -->
-            <div class="col-md-10 content">
-                <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-                    <div class="container-fluid">
-                        <span class="navbar-brand">@yield('title')</span>
-                        <div class="d-flex">
-                            <span class="navbar-text">
-                                Welcome, {{ Auth::user()->name }}
-                            </span>
-                        </div>
+            <div class="user-dropdown">
+                <a href="#" class="dropdown-toggle">
+                    <div class="text-end me-2 d-none d-sm-block">
+                        <div class="fw-bold small">{{ Auth::user()->name }}</div>
+                        <div class="small" style="color: var(--primary-accent); font-size: 0.75rem;">Administrator</div>
                     </div>
-                </nav>
-                
-                @if(session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
+                    <div class="user-avatar">
+                        {{ substr(Auth::user()->name, 0, 1) }}
                     </div>
-                @endif
-                
-                @if(session('error'))
-                    <div class="alert alert-danger">
-                        {{ session('error') }}
-                    </div>
-                @endif
-                
-                @yield('content')
+                </a>
             </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="content-container">
+            @if(session('success'))
+                <div class="alert alert-success d-flex align-items-center mb-4" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <div class="ms-2">{{ session('success') }}</div>
+                </div>
+            @endif
+            
+            @if(session('error'))
+                <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <div class="ms-2">{{ session('error') }}</div>
+                </div>
+            @endif
+
+            @yield('content')
         </div>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Toggle Sidebar for Mobile
+        $(document).ready(function() {
+            $('#sidebarToggle').on('click', function() {
+                $('.sidebar').toggleClass('show');
+            });
+        });
+    </script>
     @yield('scripts')
 </body>
 </html>

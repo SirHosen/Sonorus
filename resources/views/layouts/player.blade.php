@@ -459,6 +459,8 @@
             cursor: pointer;
             position: relative;
             overflow: visible;
+            touch-action: none; /* allow custom pointer handling */
+            user-select: none;
         }
 
         .progress-bar {
@@ -467,6 +469,7 @@
             border-radius: 4px;
             width: 0%;
             position: relative;
+            pointer-events: none; /* let container handle all events */
         }
 
         .progress-bar-handle {
@@ -482,6 +485,7 @@
         cursor: grab;
         z-index: 10;
         transition: transform 0.1s, box-shadow 0.1s;
+        pointer-events: none; /* prevent handle from eating clicks */
     }
 
 
@@ -1009,7 +1013,7 @@
     </div>
 
     <!-- Single audio player element -->
-    <audio id="audioPlayer"></audio>
+    <audio id="audioPlayer" preload="metadata"></audio>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -1033,9 +1037,49 @@
             const volumeLevel = document.getElementById('volumeLevel');
             const volumeContainer = document.getElementById('volumeContainer');
             
-            let playlist = [];
-            let currentSongIndex = 0;
+            window.playlist = window.playlist || [];
+            window.currentSongIndex = window.currentSongIndex || 0;
             let isDraggingProgress = false;
+            let wasPlayingBeforeDrag = false;
+
+            const formatTime = (seconds) => {
+                if (!isFinite(seconds)) return '0:00';
+                const mins = Math.floor(seconds / 60) || 0;
+                const secs = Math.floor(seconds % 60) || 0;
+                return mins + ':' + (secs < 10 ? '0' : '') + secs;
+            };
+
+            const getDuration = () => {
+                const duration = audioPlayer.duration;
+                if (isFinite(duration) && duration > 0) return duration;
+                if (audioPlayer.seekable && audioPlayer.seekable.length) {
+                    const end = audioPlayer.seekable.end(audioPlayer.seekable.length - 1);
+                    if (isFinite(end) && end > 0) return end;
+                }
+                return 0;
+            };
+
+            const renderProgress = (positionFraction) => {
+                const safePosition = Math.max(0, Math.min(1, positionFraction || 0));
+                const percent = safePosition * 100;
+                progressBar.style.width = percent + '%';
+                progressHandle.style.left = percent + '%';
+            };
+
+            const updateProgressFromTime = (time) => {
+                if (isDraggingProgress) return;
+                const duration = getDuration();
+                currentTime.textContent = formatTime(time || 0);
+                if (duration > 0) {
+                    const position = (time || 0) / duration;
+                    renderProgress(position);
+                }
+            };
+
+            const updateTotalTime = (duration) => {
+                if (!duration || isNaN(duration)) return;
+                totalTime.textContent = formatTime(duration);
+            };
             
             // Play a song
                 window.playSong = function(songId, songTitle, songComposer, songCover, songUrl) {
@@ -1061,6 +1105,12 @@
                 });
                 
                 // Add to playlist if not already in it
+                const pagePlaylist = Array.isArray(window.pagePlaylist) ? window.pagePlaylist : [];
+                if (pagePlaylist.length > 0) {
+                    window.playlist = pagePlaylist;
+                }
+
+                const playlist = window.playlist;
                 const songExists = playlist.findIndex(song => song.id === songId);
                 if (songExists === -1) {
                     playlist.push({
@@ -1070,9 +1120,9 @@
                         cover: songCover,
                         url: songUrl
                     });
-                    currentSongIndex = playlist.length - 1;
+                    window.currentSongIndex = playlist.length - 1;
                 } else {
-                    currentSongIndex = songExists;
+                    window.currentSongIndex = songExists;
                 }
             };
             
@@ -1089,150 +1139,102 @@
             
             // Previous button
             prevButton.addEventListener('click', function() {
-                if (playlist.length > 0 && currentSongIndex > 0) {
-                    currentSongIndex--;
-                    const prevSong = playlist[currentSongIndex];
+                const playlist = window.playlist;
+                if (playlist.length > 0 && window.currentSongIndex > 0) {
+                    window.currentSongIndex--;
+                    const prevSong = playlist[window.currentSongIndex];
                     playSong(prevSong.id, prevSong.title, prevSong.composer, prevSong.cover, prevSong.url);
                 }
             });
             
             // Next button
             nextButton.addEventListener('click', function() {
-                if (playlist.length > 0 && currentSongIndex < playlist.length - 1) {
-                    currentSongIndex++;
-                    const nextSong = playlist[currentSongIndex];
+                const playlist = window.playlist;
+                if (playlist.length > 0 && window.currentSongIndex < playlist.length - 1) {
+                    window.currentSongIndex++;
+                    const nextSong = playlist[window.currentSongIndex];
                     playSong(nextSong.id, nextSong.title, nextSong.composer, nextSong.cover, nextSong.url);
                 }
             });
             
             // Update progress bar
             audioPlayer.addEventListener('timeupdate', function() {
-                if (!isDraggingProgress && !isNaN(audioPlayer.duration)) {
-                    const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-                    progressBar.style.width = progress + '%';
-                    progressHandle.style.left = progress + '%';
-                    
-                    // Update current time
-                    const minutes = Math.floor(audioPlayer.currentTime / 60);
-                    const seconds = Math.floor(audioPlayer.currentTime % 60);
-                    currentTime.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-                }
+                updateProgressFromTime(audioPlayer.currentTime);
             });
             
             // Set duration when metadata is loaded
             audioPlayer.addEventListener('loadedmetadata', function() {
-                if (!isNaN(audioPlayer.duration)) {
-                    const minutes = Math.floor(audioPlayer.duration / 60);
-                    const seconds = Math.floor(audioPlayer.duration % 60);
-                    totalTime.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-                }
+                updateTotalTime(getDuration());
+                updateProgressFromTime(audioPlayer.currentTime);
+            });
+
+            audioPlayer.addEventListener('durationchange', function() {
+                updateTotalTime(getDuration());
             });
             
-            // IMPROVED SEEKING FUNCTIONALITY - Drag only, no conflicting click event
-            let wasDragging = false;
-            
-            progressContainer.addEventListener('mousedown', startDragging);
-            
-            function startDragging(e) {
-                if (audioPlayer.readyState > 0) {
-                    isDraggingProgress = true;
-                    wasDragging = false;
-                    updateSeekPosition(e);
-                    document.addEventListener('mousemove', updateDuringDrag);
-                    document.addEventListener('mouseup', stopDragging);
-                    e.preventDefault(); // Prevent text selection
-                }
-            }
-            
-            function updateDuringDrag(e) {
-                if (isDraggingProgress) {
-                    wasDragging = true;
-                    updateSeekPosition(e);
-                    e.preventDefault();
-                }
-            }
-            
-            function stopDragging(e) {
-                if (isDraggingProgress) {
-                    // Apply the final seek position
-                    const rect = progressContainer.getBoundingClientRect();
-                    const seekPercentage = Math.min(Math.max(0, (e.clientX - rect.left) / rect.width), 1);
-                    
-                    if (!isNaN(audioPlayer.duration)) {
-                        audioPlayer.currentTime = seekPercentage * audioPlayer.duration;
-                    }
-                    
-                    isDraggingProgress = false;
-                    document.removeEventListener('mousemove', updateDuringDrag);
-                    document.removeEventListener('mouseup', stopDragging);
-                    
-                    // Small delay to prevent click event from firing
-                    setTimeout(() => {
-                        wasDragging = false;
-                    }, 10);
-                }
-            }
-            
-            function updateSeekPosition(e) {
+            // SEEKING FUNCTIONALITY - robust pointer handling (mouse + touch)
+            const getPositionFromEvent = (e) => {
                 const rect = progressContainer.getBoundingClientRect();
-                const seekPercentage = Math.min(Math.max(0, (e.clientX - rect.left) / rect.width), 1);
-                
-                // Update visual immediately
-                progressBar.style.width = (seekPercentage * 100) + '%';
-                progressHandle.style.left = (seekPercentage * 100) + '%';
-                
-                // Update time display
-                if (!isNaN(audioPlayer.duration)) {
-                    const newTime = seekPercentage * audioPlayer.duration;
-                    const minutes = Math.floor(newTime / 60);
-                    const seconds = Math.floor(newTime % 60);
-                    currentTime.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+                if (!rect.width) return 0;
+                return Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            };
+
+            const commitSeek = (position) => {
+                const duration = getDuration();
+                if (!duration) return;
+                const newTime = position * duration;
+                audioPlayer.currentTime = newTime;
+                renderProgress(position);
+                currentTime.textContent = formatTime(newTime);
+            };
+
+            const handlePointerMove = (e) => {
+                if (!isDraggingProgress) return;
+                const position = getPositionFromEvent(e);
+                const duration = getDuration();
+                renderProgress(position);
+                currentTime.textContent = formatTime(duration ? position * duration : 0);
+            };
+
+            const endPointerDrag = (e) => {
+                if (!isDraggingProgress) return;
+                const position = getPositionFromEvent(e);
+                commitSeek(position);
+                isDraggingProgress = false;
+                window.removeEventListener('pointermove', handlePointerMove);
+                window.removeEventListener('pointerup', endPointerDrag);
+                window.removeEventListener('pointercancel', endPointerDrag);
+                if (wasPlayingBeforeDrag) {
+                    audioPlayer.play().catch(() => {});
                 }
-            }
-            
-            // Touch support for mobile devices
-            progressContainer.addEventListener('touchstart', function(e) {
-                if (audioPlayer.readyState > 0) {
-                    isDraggingProgress = true;
-                    updateTouchSeekPosition(e.touches[0]);
-                    e.preventDefault(); // Prevent scrolling
-                }
+                e.preventDefault();
+            };
+
+            progressContainer.addEventListener('pointerdown', function(e) {
+                if (e.pointerType === 'mouse' && e.button !== 0) return;
+                if (!getDuration()) return;
+
+                wasPlayingBeforeDrag = !audioPlayer.paused;
+                isDraggingProgress = true;
+
+                const position = getPositionFromEvent(e);
+                renderProgress(position);
+                const duration = getDuration();
+                currentTime.textContent = formatTime(duration ? position * duration : 0);
+
+                window.addEventListener('pointermove', handlePointerMove);
+                window.addEventListener('pointerup', endPointerDrag);
+                window.addEventListener('pointercancel', endPointerDrag);
+                e.preventDefault();
             });
-            
-            progressContainer.addEventListener('touchmove', function(e) {
-                if (isDraggingProgress) {
-                    updateTouchSeekPosition(e.touches[0]);
-                    e.preventDefault();
-                }
+
+            // Click seek for quick jumps
+            progressContainer.addEventListener('click', function(e) {
+                if (isDraggingProgress) return; // ignore click that ends a drag
+                if (!getDuration()) return;
+                const position = getPositionFromEvent(e);
+                commitSeek(position);
             });
-            
-            progressContainer.addEventListener('touchend', function(e) {
-                if (isDraggingProgress && audioPlayer.readyState > 0) {
-                    const rect = progressContainer.getBoundingClientRect();
-                    const touchX = e.changedTouches[0].clientX;
-                    const seekPercentage = Math.min(Math.max(0, (touchX - rect.left) / rect.width), 1);
-                    
-                    audioPlayer.currentTime = seekPercentage * audioPlayer.duration;
-                    isDraggingProgress = false;
-                }
-            });
-            
-            function updateTouchSeekPosition(touch) {
-                const rect = progressContainer.getBoundingClientRect();
-                const seekPercentage = Math.min(Math.max(0, (touch.clientX - rect.left) / rect.width), 1);
-                
-                // Update visual
-                progressBar.style.width = (seekPercentage * 100) + '%';
-                progressHandle.style.left = (seekPercentage * 100) + '%';
-                
-                // Update time display
-                if (!isNaN(audioPlayer.duration)) {
-                    const newTime = seekPercentage * audioPlayer.duration;
-                    const minutes = Math.floor(newTime / 60);
-                    const seconds = Math.floor(newTime % 60);
-                    currentTime.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-                }
-            }
             
             // Volume control
             volumeContainer.addEventListener('click', function(e) {
@@ -1254,9 +1256,10 @@
             
             // Play next song when current one ends
             audioPlayer.addEventListener('ended', function() {
-                if (playlist.length > 0 && currentSongIndex < playlist.length - 1) {
-                    currentSongIndex++;
-                    const nextSong = playlist[currentSongIndex];
+                const playlist = window.playlist;
+                if (playlist.length > 0 && window.currentSongIndex < playlist.length - 1) {
+                    window.currentSongIndex++;
+                    const nextSong = playlist[window.currentSongIndex];
                     playSong(nextSong.id, nextSong.title, nextSong.composer, nextSong.cover, nextSong.url);
                 } else {
                     playPauseButton.innerHTML = '<i class="fas fa-play"></i>';

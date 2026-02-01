@@ -20,7 +20,7 @@
                         '{{ $song->title }}',
                         '{{ $song->composer->name }}',
                         '{{ $song->cover_image ? asset('storage/' . $song->cover_image) : asset('images/default-cover.jpg') }}',
-                        '{{ asset('storage/' . $song->audio_file) }}'
+                        '{{ route('player.stream', $song) }}'
                     )">
                         <i class="fas fa-play me-2"></i> Play
                     </button>
@@ -117,7 +117,7 @@
                     '{{ $relatedSong->title }}',
                     '{{ $song->composer->name }}',
                     '{{ $relatedSong->cover_image ? asset('storage/' . $relatedSong->cover_image) : asset('images/default-cover.jpg') }}',
-                    '{{ asset('storage/' . $relatedSong->audio_file) }}'
+                    '{{ route('player.stream', $relatedSong) }}'
                 )">
                     <i class="fas fa-play-circle"></i>
                 </div>
@@ -131,6 +131,29 @@
     @endforeach
 </div>
 @endif
+@endsection
+
+@section('scripts')
+<script>
+    window.pagePlaylist = [
+        {
+            id: '{{ $song->id }}',
+            title: '{{ $song->title }}',
+            composer: '{{ $song->composer->name }}',
+            cover: '{{ $song->cover_image ? asset('storage/' . $song->cover_image) : asset('images/default-cover.jpg') }}',
+            url: '{{ route('player.stream', $song) }}'
+        },
+        @foreach($relatedSongs as $relatedSong)
+        {
+            id: '{{ $relatedSong->id }}',
+            title: '{{ $relatedSong->title }}',
+            composer: '{{ $song->composer->name }}',
+            cover: '{{ $relatedSong->cover_image ? asset('storage/' . $relatedSong->cover_image) : asset('images/default-cover.jpg') }}',
+            url: '{{ route('player.stream', $relatedSong) }}'
+        },
+        @endforeach
+    ];
+</script>
 @endsection
 
 @section('styles')

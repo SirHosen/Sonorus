@@ -84,7 +84,7 @@
                                 '{{ $song->title }}',
                                 '{{ $composer->name }}',
                                 '{{ $song->cover_image ? asset('storage/' . $song->cover_image) : asset('images/default-cover.jpg') }}',
-                                '{{ asset('storage/' . $song->audio_file) }}'
+                                '{{ route('player.stream', $song) }}'
                             )">
                                 <i class="fas fa-play"></i> Play
                             </button>
@@ -115,6 +115,18 @@
 
 @section('scripts')
 <script>
+    window.pagePlaylist = [
+        @foreach($composer->songs as $song)
+        {
+            id: '{{ $song->id }}',
+            title: '{{ $song->title }}',
+            composer: '{{ $composer->name }}',
+            cover: '{{ $song->cover_image ? asset('storage/' . $song->cover_image) : asset('images/default-cover.jpg') }}',
+            url: '{{ route('player.stream', $song) }}'
+        },
+        @endforeach
+    ];
+
     function playAllComposerSongs() {
         // Create a playlist of all composer songs
         const composerSongs = [
@@ -124,7 +136,7 @@
                 title: '{{ $song->title }}',
                 composer: '{{ $composer->name }}',
                 cover: '{{ $song->cover_image ? asset('storage/' . $song->cover_image) : asset('images/default-cover.jpg') }}',
-                url: '{{ asset('storage/' . $song->audio_file) }}'
+                url: '{{ route('player.stream', $song) }}'
             },
             @endforeach
         ];

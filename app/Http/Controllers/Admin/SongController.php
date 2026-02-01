@@ -9,6 +9,7 @@ use App\Models\Composer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use getID3;
 
 class SongController extends Controller
 {
@@ -35,18 +36,23 @@ class SongController extends Controller
             'title' => 'required|string|max:255',
             'composer_id' => 'required|exists:composers,id',
             'year' => 'nullable|integer|min:1000|max:' . (date('Y') + 1),
-            'duration' => 'nullable|string|max:10',
             'description' => 'nullable|string',
             'audio_file' => 'required|file|mimes:mp3,wav,ogg|max:20480', // 20MB max
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $data = $request->except(['audio_file', 'cover_image']);
+        $data = $request->except(['audio_file', 'cover_image', 'duration']);
 
         // Handle audio file upload
         if ($request->hasFile('audio_file')) {
-            $audioPath = $request->file('audio_file')->store('songs/audio', 'public');
+            $audioFile = $request->file('audio_file');
+            $audioPath = $audioFile->store('songs/audio', 'public');
             $data['audio_file'] = $audioPath;
+
+            $duration = $this->extractDuration($audioFile->getRealPath());
+            if ($duration) {
+                $data['duration'] = $duration;
+            }
         }
 
         // Handle cover image upload
@@ -78,14 +84,13 @@ class SongController extends Controller
             'title' => 'required|string|max:255',
             'composer_id' => 'required|exists:composers,id',
             'year' => 'nullable|integer|min:1000|max:' . (date('Y') + 1),
-            'duration' => 'nullable|string|max:10',
             'description' => 'nullable|string',
             'audio_file' => 'nullable|file|mimes:mp3,wav,ogg|max:20480', // 20MB max
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         try {
-            $data = $request->except(['audio_file', 'cover_image']);
+            $data = $request->except(['audio_file', 'cover_image', 'duration']);
 
             // Handle audio file upload
             if ($request->hasFile('audio_file')) {
@@ -97,9 +102,15 @@ class SongController extends Controller
                         Log::warning('Failed to delete old audio file: ' . $e->getMessage());
                     }
                 }
-                
-                $audioPath = $request->file('audio_file')->store('songs/audio', 'public');
+
+                $audioFile = $request->file('audio_file');
+                $audioPath = $audioFile->store('songs/audio', 'public');
                 $data['audio_file'] = $audioPath;
+
+                $duration = $this->extractDuration($audioFile->getRealPath());
+                if ($duration) {
+                    $data['duration'] = $duration;
+                }
             }
 
             // Handle cover image upload
@@ -159,5 +170,29 @@ class SongController extends Controller
             return redirect()->back()
                 ->with('error', 'Failed to delete song. Please try again.');
         }
+    }
+
+    private function extractDuration(string $filePath): ?string
+    {
+        try {
+            $getID3 = new getID3();
+            $info = $getID3->analyze($filePath);
+            if (!empty($info['playtime_seconds'])) {
+                $totalSeconds = (int) round($info['playtime_seconds']);
+                $hours = intdiv($totalSeconds, 3600);
+                $minutes = intdiv($totalSeconds % 3600, 60);
+                $seconds = $totalSeconds % 60;
+
+                if ($hours > 0) {
+                    return sprintf('%d:%02d:%02d', $hours, $minutes, $seconds);
+                }
+
+                return sprintf('%d:%02d', $minutes, $seconds);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Failed to extract audio duration: ' . $e->getMessage());
+        }
+
+        return null;
     }
 }

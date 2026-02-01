@@ -155,7 +155,7 @@
                     '{{ $song->title }}',
                     '{{ $song->composer->name }}',
                     '{{ $song->cover_image ? asset('storage/' . $song->cover_image) : asset('images/default-cover.jpg') }}',
-                    '{{ asset('storage/' . $song->audio_file) }}'
+                    '{{ route('player.stream', $song) }}'
                 )">
                     <i class="fas fa-play"></i>
                 </button>
@@ -193,10 +193,11 @@
             title: '{{ $song->title }}',
             composer: '{{ $song->composer->name }}',
             cover: '{{ $song->cover_image ? asset('storage/' . $song->cover_image) : asset('images/default-cover.jpg') }}',
-            url: '{{ asset('storage/' . $song->audio_file) }}'
+            url: '{{ route('player.stream', $song) }}'
         },
         @endforeach
     ];
+    window.pagePlaylist = playlistSongs;
     
     // Function to play the entire playlist
     function playPlaylist() {

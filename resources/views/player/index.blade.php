@@ -46,7 +46,7 @@
                     '{{ $song->title }}',
                     '{{ $song->composer->name }}',
                     '{{ $song->cover_image ? asset('storage/' . $song->cover_image) : asset('images/default-cover.jpg') }}',
-                    '{{ asset('storage/' . $song->audio_file) }}'
+                    '{{ route('player.stream', $song) }}'
                 )">
                     <i class="fas fa-play-circle"></i>
                 </div>
@@ -104,4 +104,20 @@
     @endforeach
 </div>
 @endif
+@endsection
+
+@section('scripts')
+<script>
+    window.pagePlaylist = [
+        @foreach($recentSongs as $song)
+        {
+            id: '{{ $song->id }}',
+            title: '{{ $song->title }}',
+            composer: '{{ $song->composer->name }}',
+            cover: '{{ $song->cover_image ? asset('storage/' . $song->cover_image) : asset('images/default-cover.jpg') }}',
+            url: '{{ route('player.stream', $song) }}'
+        },
+        @endforeach
+    ];
+</script>
 @endsection
