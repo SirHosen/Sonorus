@@ -83,16 +83,17 @@
                     
                     <div class="mb-4">
                         <label for="photo" class="form-label">Portrait Photo</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-image"></i></span>
-                            <input type="file" class="form-control @error('photo') is-invalid @enderror" id="photo" name="photo">
-                            @error('photo')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="file-upload-wrapper">
+                            <input type="file" id="photo" name="photo" class="file-upload-input @error('photo') is-invalid @enderror" accept="image/*">
+                            <div class="file-upload-content">
+                                <i class="fas fa-image file-upload-icon"></i>
+                                <div class="file-upload-text">Click to upload Photo or drag file here</div>
+                                <div class="file-upload-hint">JPEG, PNG (Max 2MB)</div>
+                            </div>
                         </div>
-                        <div class="form-text text-secondary mt-2 small">
-                            <i class="fas fa-info-circle me-1"></i> Max 2MB (JPEG, PNG, JPG, GIF)
-                        </div>
+                        @error('photo')
+                            <div class="text-danger small mt-2">{{ $message }}</div>
+                        @enderror
                     </div>
                     
                     <div class="d-flex justify-content-end mt-5 pt-3 border-top border-secondary border-opacity-10">

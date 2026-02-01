@@ -85,21 +85,22 @@
                     <div class="mb-4">
                         <label for="photo" class="form-label">Portrait Photo</label>
                         @if($composer->photo)
-                            <div class="mb-3">
-                                <img src="{{ asset('storage/' . $composer->photo) }}" alt="{{ $composer->name }}" width="100" class="img-thumbnail bg-transparent border-secondary">
-                                <div class="small text-secondary mt-1">Current photo</div>
+                            <div class="mb-3 d-flex align-items-center gap-3 p-2 rounded" style="background: rgba(255,255,255,0.02);">
+                                <img src="{{ asset('storage/' . $composer->photo) }}" alt="{{ $composer->name }}" width="60" height="60" class="rounded-circle object-fit-cover border border-secondary shadow-sm">
+                                <div class="small text-secondary">Current photo</div>
                             </div>
                         @endif
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-image"></i></span>
-                            <input type="file" class="form-control @error('photo') is-invalid @enderror" id="photo" name="photo">
-                            @error('photo')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="file-upload-wrapper">
+                            <input type="file" id="photo" name="photo" class="file-upload-input @error('photo') is-invalid @enderror" accept="image/*">
+                            <div class="file-upload-content">
+                                <i class="fas fa-image file-upload-icon"></i>
+                                <div class="file-upload-text">Click to replace Photo or drag new file here</div>
+                                <div class="file-upload-hint">JPEG, PNG (Max 2MB)</div>
+                            </div>
                         </div>
-                        <div class="form-text text-secondary mt-2 small">
-                            <i class="fas fa-info-circle me-1"></i> Upload a new photo to replace the existing one (Max 2MB)
-                        </div>
+                        @error('photo')
+                            <div class="text-danger small mt-2">{{ $message }}</div>
+                        @enderror
                     </div>
                     
                     <div class="d-flex justify-content-end mt-5 pt-3 border-top border-secondary border-opacity-10">

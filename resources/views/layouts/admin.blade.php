@@ -303,6 +303,80 @@
             color: var(--text-secondary);
         }
 
+        /* Custom File Input */
+        /* Custom File Upload Widget */
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+            min-height: 120px;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .file-upload-wrapper:hover {
+            border-color: var(--primary-accent);
+            background: rgba(252, 211, 77, 0.05);
+            box-shadow: 0 0 20px rgba(252, 211, 77, 0.1);
+        }
+
+        .file-upload-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .file-upload-content {
+            z-index: 1;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-icon {
+            font-size: 2.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .file-upload-wrapper:hover .file-upload-icon {
+            transform: translateY(-5px);
+            color: var(--primary-accent);
+        }
+
+        .file-upload-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .file-upload-hint {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .file-selected .file-upload-icon {
+            color: #10b981; /* Success Green */
+        }
+        
+        .file-selected .file-upload-text {
+            color: #fff;
+            font-weight: 500;
+        }
+
         /* Buttons */
         .btn-primary {
             background: linear-gradient(135deg, #fcd34d 0%, #d97706 100%);
@@ -461,8 +535,40 @@
     <script>
         // Toggle Sidebar for Mobile
         $(document).ready(function() {
+            // Sidebar Toggle
             $('#sidebarToggle').on('click', function() {
                 $('.sidebar').toggleClass('show');
+            });
+
+            // Cinematic File Upload Interaction
+            $(document).on('change', '.file-upload-input', function() {
+                const file = this.files[0];
+                const wrapper = $(this).closest('.file-upload-wrapper');
+                const content = wrapper.find('.file-upload-content');
+                const icon = wrapper.find('.file-upload-icon');
+                const text = wrapper.find('.file-upload-text');
+                const hint = wrapper.find('.file-upload-hint');
+
+                if (file) {
+                    wrapper.addClass('file-selected');
+                    // Change icon to file type or checkmark
+                    if (file.type.startsWith('image/')) {
+                         icon.removeClass().addClass('fas fa-image file-upload-icon');
+                    } else if (file.type.startsWith('audio/')) {
+                         icon.removeClass().addClass('fas fa-music file-upload-icon');
+                    } else {
+                         icon.removeClass().addClass('fas fa-check-circle file-upload-icon');
+                    }
+                    
+                    text.text(file.name);
+                    hint.text('Click to change file');
+                } else {
+                    // Reset
+                    wrapper.removeClass('file-selected');
+                    icon.removeClass().addClass('fas fa-cloud-upload-alt file-upload-icon');
+                    text.text('Click to upload or drag file here');
+                    hint.text('Supported files only');
+                }
             });
         });
     </script>
